@@ -101,13 +101,6 @@ scale_data <- scale(filter_data_no_gk[,11:41])
 
 pc <- prcomp(scale_data, scale = F)
 
-summary(pc)
-
-plot(pc, type = 'l', main = 'Screeplot') ## looking at the summary and the screeplot I would keep the first 3 PC
-
-sort(pc$rotation[,1], decreasing = T)    ## It' intresting that the most important stats in PC1 are passing and defending stats
-sort(pc$rotation[,2], decreasing = T)    ## In the PC2 we see that offensive stats are leading
-sort(pc$rotation[,3], decreasing = T)    ## in the PC3 we still have many offensive stats resulting the most important ones
 
 # GK
 
@@ -116,13 +109,6 @@ filter_data_gk <- goalkeepers_goalkeeping_stats %>%
 
 pc_gk <- prcomp(filter_data_gk[,11:17], scale = T)
 
-summary(pc_gk)
-
-plot(pc_gk, type = 'l', main = 'Screeplot')
-
-sort(pc_gk$rotation[,1], decreasing = T)
-sort(pc_gk$rotation[,2], decreasing = T)    
-sort(pc_gk$rotation[,3], decreasing = T)
 
 
 
@@ -143,13 +129,7 @@ filter_attacking_data <- attacking_stats %>%
 
 pc_off <- prcomp(filter_attacking_data[,11:18], scale = T)
 
-summary(pc_gk)
 
-plot(pc_off, type = 'l', main = 'Screeplot')
-
-sort(pc_off$rotation[,1], decreasing = T)
-sort(pc_off$rotation[,2], decreasing = T)    
-sort(pc_off$rotation[,3], decreasing = T)
 
 
 # # # # #
@@ -161,12 +141,6 @@ filter_defending_data <- defending_stats %>%
 
 pc_def <- prcomp(filter_defending_data[,11:17], scale = T)
 
-summary(pc_def)
-
-plot(pc_def, type = 'l', main = 'Screeplot')
-
-sort(pc_def$rotation[,1], decreasing = T)
-sort(pc_def$rotation[,2], decreasing = T)    
 
 
 # # # # #
@@ -178,12 +152,7 @@ filter_passing_data <- passing_stats %>%
 
 pc_pas <- prcomp(filter_passing_data[,11:16], scale = T)
 
-summary(pc_pas)
-
-plot(pc_pas, type = 'l', main = 'Screeplot')
-
-sort(pc_pas$rotation[,1], decreasing = T)
-sort(pc_pas$rotation[,2], decreasing = T)    
+  
 
 
 # # # # #
@@ -195,12 +164,7 @@ filter_possession_data <- possession_stats %>%
 
 pc_pos <- prcomp(filter_possession_data[,11:15], scale = T)
 
-summary(pc_pos)
-
-plot(pc_pos, type = 'l', main = 'Screeplot')
-
-sort(pc_pos$rotation[,1], decreasing = T)
-sort(pc_pos$rotation[,2], decreasing = T)    
+ 
 
 
 
@@ -215,12 +179,7 @@ filter_attacking_offensive_data <- forwards_attacking_stats %>%
 
 pc_att_off <- prcomp(filter_attacking_offensive_data[,11:18], scale = T)
 
-summary(pc_att_off)
-
-plot(pc_att_off, type = 'l', main = 'Screeplot')
-
-sort(pc_att_off$rotation[,1], decreasing = T)
-sort(pc_att_off$rotation[,2], decreasing = T)    
+   
 
 
 # Defensive stats for defenders
@@ -231,12 +190,7 @@ filter_defending_defensive_data <- defenders_defending_stats %>%
 
 pc_def_def <- prcomp(filter_defending_defensive_data[,11:17], scale = T)
 
-summary(pc_def_def)
-
-plot(pc_def_def, type = 'l', main = 'Screeplot')
-
-sort(pc_def_def$rotation[,1], decreasing = T)
-sort(pc_def_def$rotation[,2], decreasing = T)    
+   
 
 
 
@@ -544,9 +498,8 @@ preds <- predict(off_fit, test_data) %>%
   bind_cols(test_data %>% select(Player, offensive_score.x)) %>%
   mutate(residual = offensive_score.x - .pred)
 
-tidy(off_fit)
 
-metrics(preds, truth = offensive_score.x, estimate = .pred)
+
 
 
 ## Goals prediction
@@ -568,13 +521,7 @@ gls_preds <- predict(gls_fit, test_data) %>%
   bind_cols(test_data %>% select(Player, Gls.x)) %>%
   mutate(residual = Gls.x - .pred)
 
-tidy(gls_fit)
 
-metrics(gls_preds, truth = Gls.x, estimate = .pred)
-
-predict(gls_fit, full_data) %>%
-  bind_cols(full_data %>% select(Player, Gls.x)) %>%
-  arrange(desc(.pred))
 
 
 ### WORKFLOW  FOR PREDICTING HOW A PLAYER SHOULD PERFORM IN HIS TEAM, WITHOUT CONSIDERING HIS CONTRIBUTION ###
@@ -643,44 +590,14 @@ second_offensive_workflow <- workflow() %>%
 
 second_off_fit <- fit(second_offensive_workflow, data = second_train)
 
-tidy(second_off_fit)
 
 second_off_pred <- predict(second_off_fit, second_test) %>%
   bind_cols(second_test %>% select(Player, offensive_score)) %>%
   mutate(residual = offensive_score - .pred)
 
-metrics(second_off_pred, truth = offensive_score, estimate = .pred)
 
 
-predict(second_off_fit, leave_one_out_result) %>%
-  bind_cols(leave_one_out_result %>% select(Player, offensive_score)) %>%
-  arrange(desc(.pred))
 
-
-## General  (non un gran modello)
-
-# Recipe
-second_general_recipe <- recipe(score ~ MP + team_avg_offensive_score + team_avg_score + team_avg_defensive_score +
-                                  team_avg_passing_score + team_avg_passing_score, 
-                                data = second_train) %>%
-  step_dummy(all_nominal_predictors()) %>%
-  step_normalize(all_numeric_predictors())
-
-
-# Workflow
-second_general_workflow <- workflow() %>%
-  add_model(linear_model) %>%
-  add_recipe(second_general_recipe)
-
-second_general_fit <- fit(second_general_workflow, data = second_train)
-
-tidy(second_general_fit)
-
-second_general_pred <- predict(second_general_fit, second_test) %>%
-  bind_cols(second_test %>% select(Player, score)) %>%
-  mutate(residual = score - .pred)
-
-metrics(second_general_pred, truth = score, estimate = .pred)
 
 
 

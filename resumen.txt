@@ -1,0 +1,13 @@
+La app consiste en un análisis de los jugadores de fútbol de las cinco principales ligas europeas.
+
+Hay una sección para visualizar las estadísticas más importantes de cada jugador (se puede seleccionar el tipo de estadísticas de interés), y otra sección en la que se pueden visualizar las mismas estadísticas para dos jugadores, permitiendo hacer una comparación, tanto con numeros como con gráficos.
+He realizado algunos análisis estadísticos, como PCA y clustering, para obtener una descripción de cada jugador y asignarles un 'score'. Se puede ver la descripción en las secciónes anteriores.
+
+En la tercera sección de la app, se puede ver una tabla con los jugadores ordenados por score (tanto el general como el específico para cada tipo de estadística), y un gráfico con los valores de las dos primeras componentes principales de los 50 mejores jugadores. En esa sección, se puede filtrar la clasificación por posición en el campo de juego.
+
+Finalmente, hay una sección en la que se evalúa a los jugadores: utilizando los modelos aprendidos durante las clases, para cada jugador he calculado el número predicho de goles, el score para la fase de ataque considerando su contribución al equipo, y también sin considerar dicha contribución. Las variables explicativas utilizadas fueron tanto las del jugador como las de su equipo en general.
+Mi objetivo en la última sección fue evaluar si cada jugador está rindiendo mejor, peor o igual que las estimaciones: si las estimaciones son menor que las observaciones está rindiendo mejor, si son menor está rindiendo peor.
+
+
+
+ENLACE: https://emamasso.shinyapps.io/fpa_2/

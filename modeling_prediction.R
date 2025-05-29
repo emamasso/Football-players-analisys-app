@@ -7,11 +7,6 @@
 
 
 
-####### DA FARE: 
-#######      -fare previsione con tutti e tre i modelli                         OK
-#######      -creare unico dataset con tutte le previsioni                      OK
-#######      -implementare nel server la visualizzazione di questo dataset      
-
 
 ### LIBRARIES ###
 
@@ -182,54 +177,6 @@ predict(second_off_fit, leave_one_out_result) %>%
   arrange(desc(.pred))
 
 
-## General  (non un gran modello)
-
-# Recipe
-second_general_recipe <- recipe(score ~ MP + team_avg_offensive_score + team_avg_score + team_avg_defensive_score +
-                                  team_avg_passing_score + team_avg_passing_score, 
-                                  data = second_train) %>%
-  step_dummy(all_nominal_predictors()) %>%
-  step_normalize(all_numeric_predictors())
-
-
-# Workflow
-second_general_workflow <- workflow() %>%
-  add_model(linear_model) %>%
-  add_recipe(second_general_recipe)
-
-second_general_fit <- fit(second_general_workflow, data = second_train)
-
-tidy(second_general_fit)
-
-second_general_pred <- predict(second_general_fit, second_test) %>%
-  bind_cols(second_test %>% select(Player, score)) %>%
-  mutate(residual = score - .pred)
-
-metrics(second_general_pred, truth = score, estimate = .pred)
-
-
-
-
-
-
-
-
-################################################################################
-
-### WORKFLOW TO PREDICT HOW A PLAYER COULD PERFORM IN OTHER TEAMS ###
-
-###### Tutto da rifare probabilmente, sono modelli orribili
-
-## let's create a dataframe that suits my goal
-
-player_vs_team <- data_frame %>%
-  crossing(opponent_team = unique(data_frame$Squad)) %>%
-  filter(Squad != opponent_team, Pos != 'GK') %>%
-  left_join(team_stats, by = c("opponent_team" = "Squad")) %>%
-  mutate(off_cluster = as.factor(off_cluster))
-
-
-####  
 
 
 
